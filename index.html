@@ -23,7 +23,7 @@
 html,body{background:var(--bg);color:var(--tx);font-family:var(--body)}
 body{min-height:100vh}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-input,select,textarea{font-family:inherit;font-size:14px;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 12px;outline:none;width:100%;transition:border-color .15s}
+input,select,textarea{min-width:0;font-family:inherit;font-size:14px;color:var(--tx);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 12px;outline:none;width:100%;transition:border-color .15s}
 input:focus,select:focus,textarea:focus{border-color:var(--ac)}
 input::placeholder,textarea::placeholder{color:#555}
 select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
@@ -270,19 +270,83 @@ body.mode-s{background:var(--bg)}
   .pr-foot{margin-top:10px;font-size:9px;color:#999;text-transform:uppercase;letter-spacing:.1em}
 }
 
+/* ── PROGRAMA RECOLHÍVEL / AJUDA ── */
+.prog-box{padding:0}
+.prog-sum{display:flex;align-items:center;gap:10px;padding:16px 18px;cursor:pointer;list-style:none;user-select:none}
+.prog-sum::-webkit-details-marker{display:none}
+.prog-sum .ps-t{flex:1;min-width:0}
+.prog-sum b{display:block;font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prog-sum span{font-size:12px;color:var(--mu)}
+.prog-sum i{font-style:normal;font-size:12px;font-weight:700;color:var(--ac)}
+.prog-box[open] .prog-sum i::after{content:' ▴'}
+.prog-box:not([open]) .prog-sum i::after{content:' ▾'}
+.prog-in{padding:0 18px 18px}
+details.how summary{cursor:pointer;list-style:none;font-weight:700;color:var(--mu2)}
+details.how summary::-webkit-details-marker{display:none}
+details.how summary::before{content:'💡 '}
+details.how[open] summary{margin-bottom:6px}
+.m-top{display:none}
+body.mode-t .timer{display:none}
+.sm-only{display:none}
+
 /* ── RESPONSIVO ── */
 @media (max-width:900px){
   .t-app{grid-template-columns:1fr}
-  .t-side{position:static;height:auto}
-  .side-foot{flex-direction:row;flex-wrap:wrap;gap:12px}
-  .t-main{padding:20px 14px 200px}
-  .share-bar{left:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));flex-direction:column;align-items:stretch}
-  .share-btns .btn{flex:1;padding:10px 8px}
+  .t-side{display:none}
+  .lg-only{display:none!important}
+  .sm-only{display:inline}
+  input,select,textarea{font-size:16px}
+  input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-height:44px;text-align:left}
+  .t-main{padding:calc(10px + env(safe-area-inset-top,0px)) 12px calc(96px + env(safe-area-inset-bottom,0px))}
+  .m-top{display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:15;background:var(--bg);margin:0 -12px 12px;padding:calc(8px + env(safe-area-inset-top,0px)) 12px 8px;border-bottom:1px solid var(--line)}
+  .m-top .logo-mark{width:34px;height:34px}.m-top .logo-mark span{font-size:16px}
+  .m-top select{flex:1;font-weight:700;height:42px}
+  .m-ic{width:42px;height:42px;border-radius:8px;border:1px solid var(--line2);font-size:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .m-ic.ac{background:var(--ac);color:#000;border-color:var(--ac);font-weight:700}
+  .m-menu{position:relative;flex-shrink:0}
+  .m-menu summary{list-style:none;cursor:pointer}
+  .m-menu summary::-webkit-details-marker{display:none}
+  .m-pop{position:absolute;right:0;top:48px;background:#1a1a1a;border:1px solid var(--line2);border-radius:12px;padding:6px;display:flex;flex-direction:column;min-width:200px;box-shadow:0 14px 40px rgba(0,0,0,.6)}
+  .m-pop button{text-align:left;padding:12px;font-size:15px;border-radius:8px}
+  .m-pop button:active{background:#262626}
+  .m-pop .danger{color:var(--red)}
+  .al-head{margin-bottom:10px}
+  .al-name{font-size:30px}
+  .prog-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-bottom:12px}
+  .prog-tabs::-webkit-scrollbar{display:none}
+  .chip{flex-shrink:0}
+  .card{padding:14px;border-radius:12px}
+  .prog-box{padding:0}
+  .prog-sum{padding:14px}
+  .prog-in{padding:0 14px 14px}
   .grid3{grid-template-columns:1fr 1fr}.grid3 .fld:first-child{grid-column:1/-1}
-  .ex-top{grid-template-columns:1fr 1fr}.ex-top .ex-n{grid-column:1/-1}
-  .ex-top.g{grid-template-columns:22px 1fr 1fr 28px}.ex-top.g .ex-n{grid-column:2/4}
+  .prog-actions select{flex:1;min-width:0}
+  .tr-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .tr-tabs::-webkit-scrollbar{display:none}
+  .tr-tab{flex-shrink:0;min-width:70px;padding:8px 14px}
+  .tr-head{flex-wrap:nowrap;gap:8px;margin-bottom:12px}
+  .tr-head .fld.sm{width:58px;flex-shrink:0}
+  .tr-head .btn{height:44px;padding:0 12px;flex-shrink:0}
+  .how{padding:10px 12px;margin-bottom:12px}
+  .blk{padding:12px}
+  .blk-head{flex-wrap:wrap;gap:8px}
+  .blk-head select{flex:1;width:auto}
+  .blk-tools{margin-left:auto}
+  .blk-head .rest{order:5;margin-left:0;flex-basis:100%;width:100%}
+  .ex-top,.ex-top.g{grid-template-columns:1fr 1fr;gap:6px}
+  .ex-top .ex-n{grid-column:1/-1}
+  .ex-top.g{grid-template-columns:24px 1fr 1fr 32px}
+  .ex-top.g .ex-n{grid-column:2/4}
+  .ex-top.g .ex-m{grid-column:2/3}
+  .wks{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:104px;scroll-snap-type:x proximity;margin-right:-12px;padding-right:12px}
+  .wk{min-width:0;scroll-snap-align:start}
   .grid4{grid-template-columns:1fr 1fr}
-  .blk-head{flex-wrap:wrap}.blk-head .rest{margin-left:0;flex:1;width:auto}
+  .add-blks .btn{flex:1;padding:12px 8px}
+  .share-bar{left:0;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));gap:0}
+  .share-info{display:none}
+  .share-btns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%}
+  .share-btns .btn{padding:10px 4px;font-size:12px;flex-direction:column;gap:2px}
+  .share-btns .btn .e{font-size:17px}
 }
 </style>
 </head>
@@ -395,7 +459,7 @@ function renderTrainer(){
   fixUI();
   localStorage.setItem(LS_UI,JSON.stringify(ui));
   const y=window.scrollY, a=A(), p=P(), t=T();
-  app.innerHTML=`<div class="t-app">${sideHTML()}<main class="t-main">${ui.cfg?cfgHTML():mainHTML(a,p,t)}</main></div>`;
+  app.innerHTML=`<div class="t-app">${sideHTML()}<main class="t-main">${mTopHTML()}${ui.cfg?cfgHTML():mainHTML(a,p,t)}</main></div>`;
   window.scrollTo(0,y);
 }
 function sideHTML(){
@@ -412,6 +476,19 @@ function sideHTML(){
     </div>
   </aside>`;
 }
+function mTopHTML(){
+  return `<div class="m-top">
+    <div class="logo-mark"><span>${esc(DB.cfg.mark)}</span></div>
+    <select data-act-sel="al">${DB.alunos.length?DB.alunos.map(a=>`<option value="${a.id}" ${a.id===ui.a?'selected':''}>${esc(a.nome||'Sem nome')}</option>`).join(''):'<option>Nenhum aluno</option>'}</select>
+    <button class="m-ic ac" data-act="m-add-al" aria-label="Novo aluno">+</button>
+    <details class="m-menu"><summary class="m-ic">⋯</summary><div class="m-pop">
+      <button data-act="cfg">⚙️ Minha marca</button>
+      <button data-act="export">⬇️ Fazer backup</button>
+      <button data-act="import">⬆️ Restaurar backup</button>
+      ${A()?'<button class="danger" data-act="del-al">🗑 Excluir aluno</button>':''}
+    </div></details>
+  </div>`;
+}
 function cfgHTML(){
   const c=DB.cfg;
   const f=(k,l)=>`<label class="fld"><span>${l}</span><input data-k="cfg" data-f="${k}" value="${esc(c[k])}"></label>`;
@@ -421,15 +498,17 @@ function cfgHTML(){
     <button class="btn ac" data-act="cfg">Salvar e voltar</button></section>`;
 }
 function mainHTML(a,p,t){
-  if(!a) return `<div class="t-empty"><b>Cadastre seu primeiro aluno</b><span>Digite o nome no painel ao lado e clique em +</span></div>`;
+  if(!a) return `<div class="t-empty"><b>Cadastre seu primeiro aluno</b><span>Toque em + para adicionar</span></div>`;
   return `
-  <div class="al-head"><input class="al-name" data-k="al" data-f="nome" value="${esc(a.nome)}"><button class="btn ghost danger" data-act="del-al">Excluir aluno</button></div>
+  <div class="al-head"><input class="al-name" data-k="al" data-f="nome" value="${esc(a.nome)}"><button class="btn ghost danger lg-only" data-act="del-al">Excluir aluno</button></div>
   <div class="prog-tabs">${a.progs.map(x=>`<button class="chip ${x.id===ui.p?'on':''}" data-act="sel-pr" data-id="${x.id}" data-pr-label="${x.id}">${esc(x.nome||'Programa')}</button>`).join('')}<button class="chip add" data-act="new-prog">+ Novo programa</button></div>
   ${p?progHTML(a,p,t):`<div class="t-empty" style="min-height:30vh"><b>Nenhum programa</b><span>Clique em “+ Novo programa”</span></div>`}`;
 }
 function progHTML(a,p,t){
   return `
-  <section class="card">
+  <details class="card prog-box" ${window.innerWidth>900?'open':''}>
+    <summary class="prog-sum"><div class="ps-t"><b id="psNome">${esc(p.nome||'Programa')}</b><span id="psInfo">Início ${fmtDate(p.inicio)} · ${p.sem} semana${p.sem>1?'s':''}</span></div><i>Editar</i></summary>
+    <div class="prog-in">
     <div class="grid3">
       <label class="fld"><span>Programa</span><input data-k="p" data-f="nome" value="${esc(p.nome)}" placeholder="ex: Hipertrofia — Ciclo 1"></label>
       <label class="fld"><span>Início</span><input type="date" data-k="p" data-f="inicio" value="${esc(p.inicio)}"></label>
@@ -443,18 +522,19 @@ function progHTML(a,p,t){
       <button class="btn ghost" data-act="dup-prog">⧉ Duplicar para</button>
       <select id="dupDest">${DB.alunos.map(x=>`<option value="${x.id}" ${x.id===a.id?'selected':''}>${esc(x.nome)}</option>`).join('')}</select>
       <span style="flex:1"></span>
-      <button class="btn ghost danger" data-act="del-prog">Excluir programa</button>
+      <button class="btn ghost danger" data-act="del-prog">🗑<span class="lg-only">&nbsp;Excluir programa</span></button>
     </div>
-  </section>
+    </div>
+  </details>
   <div class="tr-tabs">${p.treinos.map(x=>`<button class="tr-tab ${x.id===ui.t?'on':''}" data-act="sel-tr" data-id="${x.id}"><b data-tr-l="${x.id}">${esc(x.l||'?')}</b><span data-tr-ti="${x.id}">${esc(x.ti||'—')}</span></button>`).join('')}<button class="tr-tab add" data-act="add-tr">+ Treino</button></div>
   ${t?treinoHTML(p,t):''}
   <div class="share-bar">
     <div class="share-info">Link do <b>${esc(a.nome)}</b> · ${esc(p.nome)}</div>
     <div class="share-btns">
-      <button class="btn ghost" data-act="preview">👁 Ver como aluno</button>
-      <button class="btn ghost" data-act="print">🖨 PDF</button>
-      <button class="btn ghost" data-act="copy">🔗 Copiar link</button>
-      <button class="btn ac" data-act="wa">💬 WhatsApp</button>
+      <button class="btn ghost" data-act="preview"><span class="e">👁</span><span class="lg-only">Ver como aluno</span><span class="sm-only">Ver</span></button>
+      <button class="btn ghost" data-act="print"><span class="e">🖨</span>PDF</button>
+      <button class="btn ghost" data-act="copy"><span class="e">🔗</span><span class="lg-only">Copiar link</span><span class="sm-only">Link</span></button>
+      <button class="btn ac" data-act="wa"><span class="e">💬</span><span class="lg-only">WhatsApp</span><span class="sm-only">Enviar</span></button>
     </div>
   </div>`;
 }
@@ -463,9 +543,9 @@ function treinoHTML(p,t){
     <div class="tr-head">
       <label class="fld sm"><span>Letra</span><input data-k="t" data-f="l" maxlength="3" value="${esc(t.l)}"></label>
       <label class="fld grow"><span>Título do treino</span><input data-k="t" data-f="ti" value="${esc(t.ti)}" placeholder="ex: Peito, Ombro e Tríceps"></label>
-      <button class="btn ghost danger" data-act="del-tr">Excluir treino</button>
+      <button class="btn ghost danger" data-act="del-tr" aria-label="Excluir treino">🗑<span class="lg-only">&nbsp;Excluir treino</span></button>
     </div>
-    <div class="how"><b>Como escrever:</b> <code>4x10-12</code> <code>12/10/8/6</code> <code>3x30s</code> <code>3x12 cada lado</code> <code>2x15 aquec + 3x8</code> <code>3x10/falha</code> · <b>Semana em branco repete a anterior.</b></div>
+    <details class="how" ${window.innerWidth>900?'open':''}><summary>Como escrever a prescrição</summary><code>4x10-12</code> <code>12/10/8/6</code> <code>3x30s</code> <code>3x12 cada lado</code> <code>2x15 aquec + 3x8</code> <code>3x10/falha</code> · <b>Semana em branco repete a anterior.</b></details>
     <div class="blks">${t.blocos.length?t.blocos.map((b,i)=>blkHTML(p,b,i,t.blocos.length)).join(''):'<div class="blk-empty">Nenhum exercício ainda. Comece abaixo 👇</div>'}</div>
     <div class="add-blks"><button class="btn ac" data-act="add-blk">+ Exercício</button><button class="btn ghost" data-act="add-grp">+ Bi-set / Super-série</button></div>
   </section>`;
@@ -578,10 +658,13 @@ async function tAct(act,id,el){
   const a=A(),p=P(),t=T();
   switch(act){
     case 'sel-al': ui.a=id;ui.p=null;ui.t=null;ui.cfg=false;break;
+    case 'm-add-al':{const n=(prompt('Nome do novo aluno:')||'').trim();if(!n)return;
+      const na={id:uid(),nome:n,progs:[newProg('Programa 1')]};DB.alunos.push(na);DB.alunos.sort((x,y)=>x.nome.localeCompare(y.nome,'pt'));
+      ui.a=na.id;ui.p=na.progs[0].id;ui.t=null;ui.cfg=false;break}
     case 'add-al':{const inp=$('#novoAluno');const n=inp.value.trim();if(!n){inp.focus();return}
       const na={id:uid(),nome:n,progs:[newProg('Programa 1')]};DB.alunos.push(na);DB.alunos.sort((x,y)=>x.nome.localeCompare(y.nome,'pt'));
       ui.a=na.id;ui.p=na.progs[0].id;ui.t=null;ui.cfg=false;break}
-    case 'del-al': if(!confirm(`Excluir ${a.nome} e todos os programas dele?`))return;DB.alunos=DB.alunos.filter(x=>x.id!==a.id);ui.a=null;break;
+    case 'del-al': if(!a)return;if(!confirm(`Excluir ${a.nome} e todos os programas dele?`))return;DB.alunos=DB.alunos.filter(x=>x.id!==a.id);ui.a=null;break;
     case 'sel-pr': ui.p=id;ui.t=null;break;
     case 'new-prog':{const np=newProg(`Programa ${a.progs.length+1}`);a.progs.push(np);ui.p=np.id;ui.t=null;break}
     case 'dup-prog':{const dest=DB.alunos.find(x=>x.id===$('#dupDest').value)||a;const cp=JSON.parse(JSON.stringify(p));cp.id=uid();cp.nome=p.nome+(dest.id===a.id?' (cópia)':'');cp.inicio=today();dest.progs.push(cp);ui.a=dest.id;ui.p=cp.id;ui.t=null;toast(`Programa duplicado para ${dest.nome}`);break}
@@ -615,7 +698,8 @@ function tField(el,isChange){
     case 'al':{const a=A();a.nome=v;const lb=document.querySelector(`[data-al-label="${a.id}"]`);if(lb)lb.textContent=v||'Sem nome';break}
     case 'p':{const p=P();
       if(f==='sem'){if(!isChange)return;p.sem=Math.max(1,Math.min(16,parseInt(v)||1));save();renderTrainer();return}
-      p[f]=v;if(f==='nome'){const c=document.querySelector(`[data-pr-label="${p.id}"]`);if(c)c.textContent=v||'Programa'}break}
+      p[f]=v;if(f==='nome'){const c=document.querySelector(`[data-pr-label="${p.id}"]`);if(c)c.textContent=v||'Programa';const ps=$('#psNome');if(ps)ps.textContent=v||'Programa'}
+      if(f==='inicio'){const pi=$('#psInfo');if(pi)pi.textContent=`Início ${fmtDate(p.inicio)} · ${p.sem} semana${p.sem>1?'s':''}`}break}
     case 't':{const t=T();t[f]=v;const s=document.querySelector(f==='l'?`[data-tr-l="${t.id}"]`:`[data-tr-ti="${t.id}"]`);if(s)s.textContent=v||(f==='l'?'?':'—');break}
     case 'b':{const b=findBlk(el.dataset.id);if(b)b[f]=v;break}
     case 'e':{const e=findEx(el.dataset.id);if(!e)return;e[f]=v;
@@ -753,6 +837,7 @@ function timerAct(act){
 
 /* ═════════ EVENTOS ═════════ */
 document.addEventListener('click',e=>{
+  document.querySelectorAll('details.m-menu[open]').forEach(d=>{if(!d.contains(e.target)||e.target.closest('.m-pop'))d.removeAttribute('open')});
   const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act;
   if(act.startsWith('t-')&&['t-minus','t-plus','t-skip'].includes(act))return timerAct(act);
   if(S)return sAct(act,b);
@@ -766,6 +851,7 @@ app.addEventListener('input',e=>{
 app.addEventListener('change',e=>{
   const el=e.target;
   if(el.id==='impFile'&&el.files[0]){importFile(el.files[0]);el.value='';return}
+  if(!S&&el.dataset.actSel==='al'){ui.a=el.value;ui.p=null;ui.t=null;ui.cfg=false;renderTrainer();window.scrollTo(0,0);return}
   if(!S&&el.dataset.k)tField(el,true);
 });
 app.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='novoAluno'){e.preventDefault();tAct('add-al')}});
