@@ -967,58 +967,104 @@ window.addEventListener('hashchange',()=>location.reload());
 function makeIcon(){try{const c=document.createElement('canvas');c.width=c.height=180;const x=c.getContext('2d');x.fillStyle='#0f766e';x.fillRect(0,0,180,180);x.fillStyle='#ffffff';x.beginPath();x.moveTo(42,40);x.lineTo(150,40);x.lineTo(138,140);x.lineTo(30,140);x.closePath();x.fill();x.fillStyle='#0f766e';x.font='bold 60px Impact, "Arial Narrow", sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('BP',92,93);const u=c.toDataURL('image/png');['apple-touch-icon','icon'].forEach(r=>{const l=document.createElement('link');l.rel=r;l.href=u;document.head.appendChild(l)})}catch(e){}}
 
 
-/* ═════════ ANIMAÇÕES DE EXERCÍCIO (bonecos vetoriais) ═════════ */
+/* ═════════ ANIMAÇÕES DE EXERCÍCIO (ilustração vetorial) ═════════ */
 const AN={
+  K:{near:'#c3ccd6',far:'#a9b4c0',line:'#8d98a5',mus:'#0f766e',mus2:'#14a08f',eq:'#8b96a3',eqL:'#c9d0d8',plate:'#e4e8ed',plateS:'#a5afba',floor:'#e3e7eb',shadow:'rgba(17,24,39,.08)'},
   ease:t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,
   lerp:(a,b,t)=>a+(b-a)*t,
   rad:d=>d*Math.PI/180,
-  /* fase: desce devagar (excêntrica), pausa, sobe rápido (concêntrica), pausa */
-  phase(ms,cyc){const T=cyc.down+cyc.hold+cyc.up+cyc.top;let t=ms%T;
-    if(t<cyc.down)return AN.ease(t/cyc.down);t-=cyc.down;
-    if(t<cyc.hold)return 1;t-=cyc.hold;
-    if(t<cyc.up)return 1-AN.ease(t/cyc.up);return 0},
+  phase(ms,c){const T=c.down+c.hold+c.up+c.top;let t=ms%T;
+    if(t<c.down)return AN.ease(t/c.down);t-=c.down;
+    if(t<c.hold)return 1;t-=c.hold;
+    if(t<c.up)return 1-AN.ease(t/c.up);return 0},
   seg(p,len,deg){const r=AN.rad(deg);return [p[0]+len*Math.sin(r),p[1]-len*Math.cos(r)]},
-  ik(S,H,l1,l2,below){const dx=H[0]-S[0],dy=H[1]-S[1];let d=Math.hypot(dx,dy);d=Math.min(d,l1+l2-.01);
-    const a=Math.acos((l1*l1+d*d-l2*l2)/(2*l1*d)),b=Math.atan2(dy,dx),s=below?1:-1,ang=b+s*a;
-    return [S[0]+l1*Math.cos(ang),S[1]+l1*Math.sin(ang)]},
-  L(a,b,w,c){return `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`},
-  C(p,r,f,s,sw){return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r}" fill="${f}"${s?` stroke="${s}" stroke-width="${sw||2}"`:''}/>`},
-  plate(p){return AN.C(p,24,'#e5e7eb','#9ca3af',3)+AN.C(p,5,'#9ca3af')},
-  K:{body:'#1f2937',far:'#9aa3ad',mus:'#0f766e',eq:'#9ca3af',eq2:'#cbd2d9',floor:'#e5e7eb'},
+  f:n=>n.toFixed(1),
+  /* membro afinando: dois círculos ligados */
+  cap(a,b,r1,r2,c){const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L,f=AN.f;
+    return `<path d="M${f(a[0]+nx*r1)} ${f(a[1]+ny*r1)}L${f(b[0]+nx*r2)} ${f(b[1]+ny*r2)}L${f(b[0]-nx*r2)} ${f(b[1]-ny*r2)}L${f(a[0]-nx*r1)} ${f(a[1]-ny*r1)}Z" fill="${c}"/>`
+      +`<circle cx="${f(a[0])}" cy="${f(a[1])}" r="${r1}" fill="${c}"/><circle cx="${f(b[0])}" cy="${f(b[1])}" r="${r2}" fill="${c}"/>`},
+  circ(p,r,c,s,sw){return `<circle cx="${AN.f(p[0])}" cy="${AN.f(p[1])}" r="${r}" fill="${c}"${s?` stroke="${s}" stroke-width="${sw}"`:''}/>`},
+  ell(p,rx,ry,deg,c,op){return `<ellipse cx="${AN.f(p[0])}" cy="${AN.f(p[1])}" rx="${rx}" ry="${ry}" transform="rotate(${AN.f(deg)} ${AN.f(p[0])} ${AN.f(p[1])})" fill="${c}"${op?` opacity="${op}"`:''}/>`},
+  line(a,b,w,c){return `<line x1="${AN.f(a[0])}" y1="${AN.f(a[1])}" x2="${AN.f(b[0])}" y2="${AN.f(b[1])}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`},
+  /* curva suave fechada (Catmull-Rom) */
+  smooth(pts,c){const n=pts.length,f=AN.f;let d=`M${f(pts[0][0])} ${f(pts[0][1])}`;
+    for(let i=0;i<n;i++){const p0=pts[(i-1+n)%n],p1=pts[i],p2=pts[(i+1)%n],p3=pts[(i+2)%n];
+      d+=`C${f(p1[0]+(p2[0]-p0[0])/6)} ${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)} ${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])} ${f(p2[1])}`}
+    return `<path d="${d}Z" fill="${c}"/>`},
+  /* referencial local de um segmento: t = ao longo, o = para o lado da frente */
+  frame(a,b,front){const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1,u=[dx/L,dy/L];let n=[-u[1],u[0]];
+    if(n[0]*front[0]+n[1]*front[1]<0)n=[-n[0],-n[1]];
+    return {at:(t,o)=>[a[0]+dx*t+n[0]*o,a[1]+dy*t+n[1]*o],deg:Math.atan2(dy,dx)*180/Math.PI}},
+  /* tronco com peito e costas */
+  torso(H,S,front,c){const F=AN.frame(H,S,front);
+    const pts=[[0,16],[.3,13],[.62,17],[.86,16],[1.04,10],[1.04,-10],[.86,-14],[.55,-13],[.25,-14],[0,-18]];
+    return AN.smooth(pts.map(([t,o])=>F.at(t,o)),c)},
+  head(base,dirDeg,c){const nk=AN.seg(base,9,dirDeg),hc=AN.seg(base,22,dirDeg);
+    return AN.cap(base,nk,6,5.5,c)+AN.ell(hc,11.5,13,dirDeg,c)},
+  ik(S,H,l1,l2,pick){const dx=H[0]-S[0],dy=H[1]-S[1];let d=Math.hypot(dx,dy);d=Math.min(Math.max(d,1),l1+l2-.01);
+    const a=Math.acos(Math.max(-1,Math.min(1,(l1*l1+d*d-l2*l2)/(2*l1*d)))),b=Math.atan2(dy,dx);
+    const e1=[S[0]+l1*Math.cos(b+a),S[1]+l1*Math.sin(b+a)],e2=[S[0]+l1*Math.cos(b-a),S[1]+l1*Math.sin(b-a)];
+    return pick(e1,e2)},
+  barbell(p,far){const K=AN.K,q=[p[0]+far[0],p[1]+far[1]];
+    return AN.line([q[0]+far[0]*.6,q[1]+far[1]*.6],[p[0]-far[0]*.5,p[1]-far[1]*.5],4,K.eq)
+      +AN.circ(q,21,'#eef1f4','#c5ccd4',3)
+      +AN.circ(p,21,K.plate,K.plateS,3)+AN.circ(p,9,'none',K.plateS,2)+AN.circ(p,3.5,K.plateS)},
   LIB:{
     agachamento:{
-      vb:'60 -36 300 330',
-      titulo:'Agachamento livre',mus:'Quadríceps · Glúteos · Posterior',
-      dicas:['Pés na largura dos ombros','Desça até a coxa ficar paralela ao chão','Joelhos na direção dos pés','Peito aberto, coluna neutra'],
+      vb:'90 -12 240 300',
+      titulo:'Agachamento livre',mus:'Quadríceps · Glúteos · Posterior de coxa',
+      dicas:['Pés na largura dos ombros, pontas levemente para fora','Desça até a coxa ficar paralela ao chão','Joelhos acompanham a direção dos pés','Barra sempre sobre o meio do pé, coluna neutra'],
       cyc:{down:2000,hold:300,up:1100,top:700},
-      draw(k){const K=AN.K,l=AN.lerp;
-        const A=[205,262],s=l(4,32,k),t=l(-2,-96,k),r=l(4,40,k);
-        const Kn=AN.seg(A,72,s),H=AN.seg(Kn,74,t),S=AN.seg(H,86,r);
-        const nk=AN.seg(S,14,r),hd=AN.seg(S,30,r+6),bar=[S[0]-5,S[1]+3];
-        const E=AN.ik(S,bar,30,26,false);const el=[E[0]-12,E[1]+14];
-        return AN.L([150,276],[300,276],4,K.floor)
-          +AN.L([A[0]-14,A[1]+6],[A[0]+34,A[1]+6],12,K.body)
-          +AN.L(A,Kn,15,K.body)+AN.L(Kn,H,19,K.mus)
-          +AN.L(H,S,30,K.body)+AN.L(S,el,11,K.body)+AN.L(el,[bar[0]+4,bar[1]-2],10,K.body)
-          +AN.plate(bar)+AN.L(S,nk,12,K.body)+AN.C(hd,14,K.body);
+      draw(k){const K=AN.K,l=AN.lerp,A=[200,262],mid=212;
+        const kh=AN.ease(Math.min(1,k*1.08));
+        const s=l(5,34,k),t=l(-3,-98,kh);
+        const Kn=AN.seg(A,74,s),H=AN.seg(Kn,76,t);
+        let r=Math.asin(Math.max(-1,Math.min(1,(mid+6-H[0])/88)))*180/Math.PI;r=Math.max(-5,Math.min(55,r));
+        const S=AN.seg(H,88,r),Hf0=AN.frame(H,S,[1,0]),bar=Hf0.at(.9,-15);
+        const hand=[bar[0]+5,bar[1]+1];
+        const E=AN.ik(S,hand,27,25,(a,b)=>a[0]<b[0]?a:b);
+        const off=[-4,-2],o=p=>[p[0]+off[0],p[1]+off[1]];
+        const Tf=AN.frame(Kn,H,[1,0]),q1=Tf.at(.18,3),q2=Tf.at(.82,2);
+        const Hf=AN.frame(H,S,[1,0]);
+        return `<ellipse cx="${mid}" cy="272" rx="58" ry="6" fill="${K.shadow}"/>`
+          +AN.line([110,272],[310,272],3,K.floor)
+          +AN.cap(o([A[0]-12,A[1]+6]),o([A[0]+28,A[1]+6]),5,5,K.far)+AN.cap(o(A),o(Kn),8,10,K.far)+AN.cap(o(Kn),o(H),11,15,K.far)
+          +AN.cap([A[0]-12,A[1]+6],[A[0]+30,A[1]+6],5.5,5,K.near)+AN.cap(A,Kn,8,10.5,K.near)+AN.cap(Kn,H,11,15.5,K.near)
+          +AN.cap(q1,q2,7,10,K.mus)
+          +AN.torso(H,S,[1,0],K.near)
+          +AN.ell(Hf.at(.06,-9),11,13,Hf.deg,K.mus2,.95)
+          +AN.cap(S,E,7,6,K.near)+AN.cap(E,hand,6,5,K.near)+AN.circ(hand,5.5,K.near)
+          +AN.barbell(bar,[10,-6])
+          +AN.head(Hf.at(1.0,6),r+8,K.near);
       }
     },
     supino:{
-      vb:'80 30 280 260',
+      vb:'78 30 292 258',
       titulo:'Supino reto',mus:'Peitoral · Tríceps · Deltoide anterior',
-      dicas:['Escápulas encaixadas no banco','Barra desce até tocar o meio do peito','Cotovelos a ~45–70° do tronco','Pés firmes no chão'],
+      dicas:['Escápulas encaixadas e peito aberto','Barra desce controlada até o meio do peito','Antebraços na vertical, cotovelos a ~45–70° do tronco','Pés firmes no chão, glúteo no banco'],
       cyc:{down:2000,hold:300,up:1000,top:700},
       draw(k){const K=AN.K,l=AN.lerp;
-        const S=[150,178],Hp=[256,184],hd=[118,176];
-        const bar=[l(151,170,k),l(74,156,k)];
-        const E=[bar[0]-2,bar[1]+50];
-        const Kn=[308,150],An=[322,250];
-        return AN.L([90,276],[340,276],4,K.floor)
-          +AN.L([110,200],[300,200],14,K.eq)+AN.L([140,206],[140,270],8,K.eq2)+AN.L([280,206],[280,270],8,K.eq2)
-          +AN.L(Hp,Kn,19,K.body)+AN.L(Kn,An,15,K.body)+AN.L([An[0]-6,An[1]+12],[An[0]+26,An[1]+12],12,K.body)
-          +AN.L(S,Hp,30,K.body)+AN.C([166,170],13,K.mus)+AN.L([132,178],S,12,K.body)+AN.C(hd,14,K.body)
-          +AN.L(S,E,12,K.body)+AN.L(E,bar,10,K.body)
-          +AN.plate(bar);
+        const S=[152,180],H=[258,186];
+        const bar=[l(150,172,Math.pow(k,1.25)),l(72,156,k)];
+        const E=[bar[0]-1,bar[1]+50];
+        const fo=[6,-3],o=p=>[p[0]+fo[0],p[1]+fo[1]];
+        const Kn=[312,150],An=[328,250];
+        const Tf=AN.frame(H,S,[0,-1]);
+        const Uf=AN.frame(S,E,[-1,0]);
+        return `<ellipse cx="220" cy="274" rx="120" ry="6" fill="${K.shadow}"/>`
+          +AN.line([96,272],[350,272],3,K.floor)
+          +AN.line([104,56],[104,270],6,K.eqL)+AN.line([104,80],[122,80],5,K.eqL)
+          +AN.line([140,206],[140,268],7,K.eqL)+AN.line([272,206],[272,268],7,K.eqL)
+          +`<rect x="98" y="194" width="206" height="13" rx="6.5" fill="${K.eq}"/>`
+          +AN.cap(o(S),o(E),7,6,K.far)+AN.cap(o(E),o(bar),6,5,K.far)
+          +AN.cap(o(H),o(Kn),15,11,K.far)+AN.cap(o(Kn),o(An),10,8,K.far)+AN.cap(o([An[0]-8,An[1]+12]),o([An[0]+28,An[1]+12]),5,5,K.far)
+          +AN.cap(H,Kn,15.5,11,K.near)+AN.cap(Kn,An,10.5,8,K.near)+AN.cap([An[0]-8,An[1]+12],[An[0]+30,An[1]+12],5.5,5,K.near)
+          +AN.torso(H,S,[0,-1],K.near)
+          +AN.ell(Tf.at(.84,10),13,7,Tf.deg,K.mus,.95)
+          +AN.head(Tf.at(1.03,1),-90,K.near)
+          +AN.cap(S,E,7.5,6,K.near)+AN.cap(Uf.at(.2,-3),Uf.at(.8,-3),4.5,3.5,K.mus2)+AN.circ(Uf.at(.04,1),6.5,K.mus2)
+          +AN.cap(E,bar,6,5,K.near)+AN.circ(bar,5.5,K.near)
+          +AN.barbell(bar,[10,-6]);
       }
     }
   },
@@ -1031,7 +1077,6 @@ const AN={
     const f=now=>{svg.innerHTML=a.draw(AN.phase(now-t0,a.cyc));AN.raf=requestAnimationFrame(f)};AN.raf=requestAnimationFrame(f)},
   stop(){cancelAnimationFrame(AN.raf)}
 };
-
 function openAnim(key){const a=AN.LIB[key];if(!a)return;
   const m=document.createElement('div');m.className='an-modal';m.id='anModal';
   m.innerHTML=`<div class="an-box"><div class="an-head"><div><b>${esc(a.titulo)}</b><span>${esc(a.mus)}</span></div><button class="an-x" aria-label="Fechar">✕</button></div>
@@ -1043,7 +1088,7 @@ function openAnim(key){const a=AN.LIB[key];if(!a)return;
 }
 
 /* ═════════ AVISO DE ATUALIZAÇÃO ═════════ */
-const APP_V='2026-11-24.5';
+const APP_V='2026-11-24.6';
 let updShown=false;
 async function checkUpdate(){
   if(updShown||location.protocol==='file:')return;
