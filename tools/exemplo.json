@@ -1,0 +1,156 @@
+{
+ "aluno": "Nome do Aluno",
+ "nome": "Treino A/B — 3 semanas",
+ "dicas": [
+  "Ordem: A1 → B1 → A2 → B2 → A3 → B3 e depois recomeça do A1",
+  "Exercícios agrupados são super-série: faz um, faz o outro e só então descansa",
+  "Reps 10–12 = no mínimo 10 e no máximo 12 repetições máximas",
+  "A cada semana as repetições caem: aumente a carga",
+  "Controle a volta — fase excêntrica faz a diferença",
+  "É GUERRA!!!"
+ ],
+ "treinos": [
+  {
+   "l": "A1",
+   "ti": "Semana 1",
+   "blocos": [
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Supino Reto",
+       "4x10-12"
+      ],
+      [
+       "Leg Press",
+       "4x10-12"
+      ]
+     ]
+    },
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Supino Inclinado Dumbbell",
+       "3x10-12"
+      ],
+      [
+       "Cadeira Extensora",
+       "3x10-12"
+      ]
+     ]
+    },
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Elevação Lateral Pesado",
+       "3x10-12"
+      ],
+      [
+       "Elevação Lateral Leve",
+       "3x10-12"
+      ]
+     ]
+    },
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Pulley Tríceps",
+       "3x10-12"
+      ],
+      [
+       "Abdômen",
+       "3x máx"
+      ]
+     ]
+    },
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Tríceps Testa",
+       "3x10-12"
+      ],
+      [
+       "Abdômen",
+       "3x máx"
+      ]
+     ]
+    }
+   ]
+  },
+  {
+   "l": "B1",
+   "ti": "Semana 1",
+   "blocos": [
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Puxada Frente Pegada Aberta",
+       "4x10-12"
+      ],
+      [
+       "Stiff",
+       "4x8-10"
+      ]
+     ]
+    },
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Remada Baixa Fechada",
+       "3x10-12"
+      ],
+      [
+       "Cadeira Flexora",
+       "3x10-12"
+      ]
+     ]
+    },
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Peck Deck Invertido",
+       "3x10-12"
+      ],
+      [
+       "Rosca Direta W",
+       "3x10-12"
+      ]
+     ]
+    },
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Rosca 45°",
+       "3x10-12"
+      ],
+      [
+       "Abdômen",
+       "3x máx"
+      ]
+     ]
+    },
+    {
+     "r": "2'–3'",
+     "ex": [
+      [
+       "Panturrilha",
+       "4x12-15"
+      ],
+      [
+       "Abdômen",
+       "3x máx"
+      ]
+     ]
+    }
+   ]
+  }
+ ]
+}
