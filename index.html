@@ -281,6 +281,23 @@ body.mode-s{background:var(--bg)}
 .upd div{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .upd b{font-size:14px}.upd span{font-size:12px;opacity:.7}
 .upd button{background:var(--ac);color:#fff;font-weight:700;font-size:13px;padding:10px 14px;border-radius:10px;flex-shrink:0}
+.an-modal{position:fixed;inset:0;z-index:120;background:rgba(17,24,39,.45);display:flex;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .2s}
+.an-modal.on{opacity:1}
+.an-box{background:var(--card);width:min(520px,100%);border-radius:20px 20px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom,0px));transform:translateY(30px);transition:transform .25s}
+.an-modal.on .an-box{transform:none}
+@media (min-width:600px){.an-modal{align-items:center}.an-box{border-radius:20px}}
+.an-head{display:flex;align-items:flex-start;gap:10px}
+.an-head div{flex:1;display:flex;flex-direction:column}
+.an-head b{font-size:18px;font-weight:700;color:var(--tx)}
+.an-head span{font-size:12.5px;color:var(--mu);margin-top:2px}
+.an-x{width:34px;height:34px;border-radius:50%;background:var(--card2);color:var(--mu2);font-size:14px}
+.an-stage{margin-top:12px;background:var(--bg);border-radius:14px;padding:6px;position:relative}
+.an-stage svg{display:block;width:100%;height:auto;max-height:46vh}
+.an-tempo{position:absolute;left:12px;bottom:10px;font-size:11px;font-weight:600;color:var(--mu)}
+.an-cues{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.an-cues li{font-size:13.5px;color:var(--mu2);padding-left:16px;position:relative;line-height:1.45}
+.an-cues li::before{content:'';position:absolute;left:2px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--ac)}
+button.s-vid{font-family:inherit;background:var(--card)}
 /* ── PRINT ── */
 #print{display:none}
 @media print{
@@ -832,7 +849,7 @@ function exHead(e,label,w,withRx){
     <div class="s-exi"><h3>${esc(e.n)}</h3>${e.m?`<div class="s-mus">${esc(e.m)}</div>`:''}
       <div class="s-rx"><span class="s-pill">${esc(rxTxt(sets))}</span>${withRx||''}${tags}</div>
       ${e.o?`<div class="s-obs">${esc(e.o)}</div>`:''}</div>
-    ${e.v?`<a class="s-vid" href="${esc(safeUrl(e.v))}" target="_blank" rel="noopener">${IC.play} Vídeo</a>`:''}
+    ${AN.key(e.n)?`<button class="s-vid" data-act="s-anim" data-k="${AN.key(e.n)}">${IC.play} Execução</button>`:(e.v?`<a class="s-vid" href="${esc(safeUrl(e.v))}" target="_blank" rel="noopener">${IC.play} Vídeo</a>`:'')}
   </div>`;
 }
 function setRow(e,s,si,w,rest,label,name,showReps){
@@ -900,6 +917,7 @@ function sAct(act,el){
       if(!was&&isDone(S.p.treinos[S.t],S.w))onTreinoDone();
       return}
     case 's-timer': unlockAudio();startTimer(+el.dataset.s);return;
+    case 's-anim': openAnim(el.dataset.k);return;
     case 's-clear':{if(!confirm('Desmarcar todas as séries deste treino? As cargas continuam salvas.'))return;
       const t=S.p.treinos[S.t];t.blocos.forEach(b=>b.ex.forEach(e=>Object.keys(S.log).forEach(k=>{if(k.startsWith(`${S.w}|${e.id}|`)&&S.log[k])S.log[k].d=false})));saveLog();renderStudent();return}
     case 'tip-x': localStorage.setItem('bp_tip','1');$('#sTip')?.remove();return;
@@ -949,8 +967,83 @@ window.addEventListener('hashchange',()=>location.reload());
 function makeIcon(){try{const c=document.createElement('canvas');c.width=c.height=180;const x=c.getContext('2d');x.fillStyle='#0f766e';x.fillRect(0,0,180,180);x.fillStyle='#ffffff';x.beginPath();x.moveTo(42,40);x.lineTo(150,40);x.lineTo(138,140);x.lineTo(30,140);x.closePath();x.fill();x.fillStyle='#0f766e';x.font='bold 60px Impact, "Arial Narrow", sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('BP',92,93);const u=c.toDataURL('image/png');['apple-touch-icon','icon'].forEach(r=>{const l=document.createElement('link');l.rel=r;l.href=u;document.head.appendChild(l)})}catch(e){}}
 
 
+/* ═════════ ANIMAÇÕES DE EXERCÍCIO (bonecos vetoriais) ═════════ */
+const AN={
+  ease:t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,
+  lerp:(a,b,t)=>a+(b-a)*t,
+  rad:d=>d*Math.PI/180,
+  /* fase: desce devagar (excêntrica), pausa, sobe rápido (concêntrica), pausa */
+  phase(ms,cyc){const T=cyc.down+cyc.hold+cyc.up+cyc.top;let t=ms%T;
+    if(t<cyc.down)return AN.ease(t/cyc.down);t-=cyc.down;
+    if(t<cyc.hold)return 1;t-=cyc.hold;
+    if(t<cyc.up)return 1-AN.ease(t/cyc.up);return 0},
+  seg(p,len,deg){const r=AN.rad(deg);return [p[0]+len*Math.sin(r),p[1]-len*Math.cos(r)]},
+  ik(S,H,l1,l2,below){const dx=H[0]-S[0],dy=H[1]-S[1];let d=Math.hypot(dx,dy);d=Math.min(d,l1+l2-.01);
+    const a=Math.acos((l1*l1+d*d-l2*l2)/(2*l1*d)),b=Math.atan2(dy,dx),s=below?1:-1,ang=b+s*a;
+    return [S[0]+l1*Math.cos(ang),S[1]+l1*Math.sin(ang)]},
+  L(a,b,w,c){return `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`},
+  C(p,r,f,s,sw){return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${r}" fill="${f}"${s?` stroke="${s}" stroke-width="${sw||2}"`:''}/>`},
+  plate(p){return AN.C(p,24,'#e5e7eb','#9ca3af',3)+AN.C(p,5,'#9ca3af')},
+  K:{body:'#1f2937',far:'#9aa3ad',mus:'#0f766e',eq:'#9ca3af',eq2:'#cbd2d9',floor:'#e5e7eb'},
+  LIB:{
+    agachamento:{
+      vb:'60 -36 300 330',
+      titulo:'Agachamento livre',mus:'Quadríceps · Glúteos · Posterior',
+      dicas:['Pés na largura dos ombros','Desça até a coxa ficar paralela ao chão','Joelhos na direção dos pés','Peito aberto, coluna neutra'],
+      cyc:{down:2000,hold:300,up:1100,top:700},
+      draw(k){const K=AN.K,l=AN.lerp;
+        const A=[205,262],s=l(4,32,k),t=l(-2,-96,k),r=l(4,40,k);
+        const Kn=AN.seg(A,72,s),H=AN.seg(Kn,74,t),S=AN.seg(H,86,r);
+        const nk=AN.seg(S,14,r),hd=AN.seg(S,30,r+6),bar=[S[0]-5,S[1]+3];
+        const E=AN.ik(S,bar,30,26,false);const el=[E[0]-12,E[1]+14];
+        return AN.L([150,276],[300,276],4,K.floor)
+          +AN.L([A[0]-14,A[1]+6],[A[0]+34,A[1]+6],12,K.body)
+          +AN.L(A,Kn,15,K.body)+AN.L(Kn,H,19,K.mus)
+          +AN.L(H,S,30,K.body)+AN.L(S,el,11,K.body)+AN.L(el,[bar[0]+4,bar[1]-2],10,K.body)
+          +AN.plate(bar)+AN.L(S,nk,12,K.body)+AN.C(hd,14,K.body);
+      }
+    },
+    supino:{
+      vb:'80 30 280 260',
+      titulo:'Supino reto',mus:'Peitoral · Tríceps · Deltoide anterior',
+      dicas:['Escápulas encaixadas no banco','Barra desce até tocar o meio do peito','Cotovelos a ~45–70° do tronco','Pés firmes no chão'],
+      cyc:{down:2000,hold:300,up:1000,top:700},
+      draw(k){const K=AN.K,l=AN.lerp;
+        const S=[150,178],Hp=[256,184],hd=[118,176];
+        const bar=[l(151,170,k),l(74,156,k)];
+        const E=[bar[0]-2,bar[1]+50];
+        const Kn=[308,150],An=[322,250];
+        return AN.L([90,276],[340,276],4,K.floor)
+          +AN.L([110,200],[300,200],14,K.eq)+AN.L([140,206],[140,270],8,K.eq2)+AN.L([280,206],[280,270],8,K.eq2)
+          +AN.L(Hp,Kn,19,K.body)+AN.L(Kn,An,15,K.body)+AN.L([An[0]-6,An[1]+12],[An[0]+26,An[1]+12],12,K.body)
+          +AN.L(S,Hp,30,K.body)+AN.C([166,170],13,K.mus)+AN.L([132,178],S,12,K.body)+AN.C(hd,14,K.body)
+          +AN.L(S,E,12,K.body)+AN.L(E,bar,10,K.body)
+          +AN.plate(bar);
+      }
+    }
+  },
+  key(n){n=String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    if(/agachamento/.test(n))return 'agachamento';
+    if(/supino/.test(n)&&!/inclinado|declinado/.test(n))return 'supino';
+    return null},
+  raf:null,
+  play(svg,key){const a=AN.LIB[key];cancelAnimationFrame(AN.raf);const t0=performance.now();
+    const f=now=>{svg.innerHTML=a.draw(AN.phase(now-t0,a.cyc));AN.raf=requestAnimationFrame(f)};AN.raf=requestAnimationFrame(f)},
+  stop(){cancelAnimationFrame(AN.raf)}
+};
+
+function openAnim(key){const a=AN.LIB[key];if(!a)return;
+  const m=document.createElement('div');m.className='an-modal';m.id='anModal';
+  m.innerHTML=`<div class="an-box"><div class="an-head"><div><b>${esc(a.titulo)}</b><span>${esc(a.mus)}</span></div><button class="an-x" aria-label="Fechar">✕</button></div>
+  <div class="an-stage"><svg viewBox="${a.vb}" id="anSvg"></svg><div class="an-tempo">Desce em 2 s · sobe rápido</div></div>
+  <ul class="an-cues">${a.dicas.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`;
+  const close=()=>{AN.stop();m.classList.remove('on');setTimeout(()=>m.remove(),200)};
+  m.addEventListener('click',e=>{if(e.target===m||e.target.closest('.an-x'))close()});
+  document.body.appendChild(m);requestAnimationFrame(()=>m.classList.add('on'));AN.play($('#anSvg'),key);
+}
+
 /* ═════════ AVISO DE ATUALIZAÇÃO ═════════ */
-const APP_V='2026-11-24.4';
+const APP_V='2026-11-24.5';
 let updShown=false;
 async function checkUpdate(){
   if(updShown||location.protocol==='file:')return;
