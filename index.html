@@ -1068,7 +1068,8 @@ const AN={
       }
     }
   },
-  key(n){n=String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  ON:false, /* animações desligadas até os vídeos ficarem prontos */
+  key(n){if(!AN.ON)return null;n=String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     if(/agachamento/.test(n))return 'agachamento';
     if(/supino/.test(n)&&!/inclinado|declinado/.test(n))return 'supino';
     return null},
@@ -1088,7 +1089,7 @@ function openAnim(key){const a=AN.LIB[key];if(!a)return;
 }
 
 /* ═════════ AVISO DE ATUALIZAÇÃO ═════════ */
-const APP_V='2026-11-24.6';
+const APP_V='2026-11-24.7';
 let updShown=false;
 async function checkUpdate(){
   if(updShown||location.protocol==='file:')return;
