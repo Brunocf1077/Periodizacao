@@ -276,6 +276,11 @@ body.mode-s{background:var(--bg)}
 .toast.on{transform:translate(-50%,0);opacity:1}
 .toast.warn{background:var(--red)}
 
+.upd{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translate(-50%,-160%);width:min(440px,calc(100% - 20px));background:var(--tx);color:#fff;border-radius:14px;padding:12px 12px 12px 16px;display:flex;align-items:center;gap:12px;z-index:100;box-shadow:0 14px 40px rgba(17,24,39,.25);transition:transform .35s cubic-bezier(.2,.9,.3,1.1)}
+.upd.on{transform:translate(-50%,0)}
+.upd div{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.upd b{font-size:14px}.upd span{font-size:12px;opacity:.7}
+.upd button{background:var(--ac);color:#fff;font-weight:700;font-size:13px;padding:10px 14px;border-radius:10px;flex-shrink:0}
 /* ── PRINT ── */
 #print{display:none}
 @media print{
@@ -942,6 +947,28 @@ window.addEventListener('hashchange',()=>location.reload());
 
 /* ═════════ ÍCONE (tela inicial) ═════════ */
 function makeIcon(){try{const c=document.createElement('canvas');c.width=c.height=180;const x=c.getContext('2d');x.fillStyle='#0f766e';x.fillRect(0,0,180,180);x.fillStyle='#ffffff';x.beginPath();x.moveTo(42,40);x.lineTo(150,40);x.lineTo(138,140);x.lineTo(30,140);x.closePath();x.fill();x.fillStyle='#0f766e';x.font='bold 60px Impact, "Arial Narrow", sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText('BP',92,93);const u=c.toDataURL('image/png');['apple-touch-icon','icon'].forEach(r=>{const l=document.createElement('link');l.rel=r;l.href=u;document.head.appendChild(l)})}catch(e){}}
+
+
+/* ═════════ AVISO DE ATUALIZAÇÃO ═════════ */
+const APP_V='2026-11-24.4';
+let updShown=false;
+async function checkUpdate(){
+  if(updShown||location.protocol==='file:')return;
+  try{
+    const r=await fetch(location.pathname+'?nc='+Date.now(),{cache:'no-store'});if(!r.ok)return;
+    const m=(await r.text()).match(/const APP_V='([^']+)'/);
+    if(m&&m[1]!==APP_V)showUpdate(m[1]);
+  }catch(e){}
+}
+function showUpdate(v){
+  updShown=true;
+  const d=document.createElement('div');d.className='upd';
+  d.innerHTML='<div><b>Nova versão disponível</b><span>Suas cargas e marcações continuam salvas.</span></div><button>Atualizar</button>';
+  d.querySelector('button').onclick=()=>location.replace(location.pathname+'?v='+encodeURIComponent(v)+location.hash);
+  document.body.appendChild(d);requestAnimationFrame(()=>d.classList.add('on'));
+}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkUpdate()});
+setTimeout(checkUpdate,1500);
 
 /* ═════════ INÍCIO ═════════ */
 (function boot(){
