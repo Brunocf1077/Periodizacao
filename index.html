@@ -767,6 +767,8 @@ function curWeek(p){if(!p.inicio)return 0;const s=new Date(p.inicio+'T00:00:00')
 const saveLog=()=>{try{localStorage.setItem(S.key,JSON.stringify(S.log))}catch(e){}};
 const saveH=()=>{try{localStorage.setItem(S.hkey,JSON.stringify(S.h))}catch(e){}};
 function nextIdx(){const n=S.p.treinos.length;return (S.h&&S.h.last!=null&&n)?(S.h.last+1)%n:null}
+function sugKg(id,si,w){for(let k=si-1;k>=0;k--){const L=S.log[`${w}|${id}|${k}`];if(L&&L.k)return L.k}const o=S.log[`${w}|${id}|${si}`];return (o&&o.pk)||prevKg(id,si,w)||''}
+function refreshSug(key){const [w,id,si]=key.split('|');document.querySelectorAll(`input[data-kg^="${w}|${id}|"]`).forEach(inp=>{const k=+inp.dataset.kg.split('|')[2];if(k>+si&&!inp.value)inp.placeholder=sugKg(id,k,+w)||'—'})}
 function prevKg(id,si,w){for(let k=w-1;k>=0;k--){const L=S.log[`${k}|${id}|${si}`];if(L&&L.k)return L.k}return ''}
 const IC={
   chk:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -825,7 +827,7 @@ function exHead(e,label,w,withRx){
   </div>`;
 }
 function setRow(e,s,si,w,rest,label,name,showReps){
-  const key=`${w}|${e.id}|${si}`,L=S.log[key]||{},last=L.pk||prevKg(e.id,si,w);
+  const key=`${w}|${e.id}|${si}`,L=S.log[key]||{},last=sugKg(e.id,si,w);
   return `<div class="s-set ${L.d?'done':''} ${s.w?'warm':''}">
     ${label!==''?`<span class="s-sn">${label}</span>`:''}
     <span class="s-sr ${label===''?'solo':''}">${name?esc(name):''}${showReps?`${name?'<small>':''}${esc(repLabel(s.r))}${name?'</small>':''}`:''}</span>
@@ -881,7 +883,9 @@ function sAct(act,el){
   switch(act){
     case 's-tab': S.t=+el.dataset.i;localStorage.setItem('bp_st_'+S.p.id,JSON.stringify({t:S.t}));renderStudent();scrollToTabs();return;
     case 's-wk': S.w=+el.dataset.i;renderStudent();return;
-    case 's-chk':{const k=el.dataset.key,L=S.log[k]||{};const was=isDone(S.p.treinos[S.t],S.w);L.d=!L.d;S.log[k]=L;saveLog();
+    case 's-chk':{const k=el.dataset.key,L=S.log[k]||{};const was=isDone(S.p.treinos[S.t],S.w);L.d=!L.d;
+      if(L.d&&!L.k){const [w,id,si]=k.split('|'),sg=sugKg(id,+si,+w);if(sg){L.k=sg;const inp=el.closest('.s-set').querySelector('input[data-kg]');if(inp)inp.value=sg;}}
+      S.log[k]=L;saveLog();if(L.k)refreshSug(k);
       el.closest('.s-set').classList.toggle('done',L.d);updProgress();
       if(L.d){unlockAudio();if(navigator.vibrate)navigator.vibrate(30);const r=+el.dataset.rest;if(r>0)startTimer(r)}
       if(!was&&isDone(S.p.treinos[S.t],S.w))onTreinoDone();
@@ -920,7 +924,7 @@ document.addEventListener('click',e=>{
 });
 app.addEventListener('input',e=>{
   const el=e.target;
-  if(S&&el.dataset.kg){const k=el.dataset.kg;S.log[k]={...(S.log[k]||{}),k:el.value.replace(',','.').trim()};saveLog();return}
+  if(S&&el.dataset.kg){const k=el.dataset.kg;S.log[k]={...(S.log[k]||{}),k:el.value.replace(',','.').trim()};saveLog();refreshSug(k);return}
   if(!S&&el.dataset.k)tField(el,false);
 });
 app.addEventListener('change',e=>{
