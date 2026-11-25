@@ -154,6 +154,11 @@ body.mode-s{background:var(--bg)}
 .s-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
 .s-top .logo-name{font-family:var(--body);font-weight:700;font-size:14px;letter-spacing:0;line-height:1.15}
 .s-top .logo-sub{font-size:8px;letter-spacing:.2em;color:var(--mu)}
+.s-who{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;box-shadow:var(--sh1)}
+.s-av{width:52px;height:52px;border-radius:50%;background:var(--ac);color:#fff;font-weight:700;font-size:19px;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:.02em}
+.s-who-t{min-width:0}
+.s-name{font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--tx);line-height:1.2}
+.s-prog-n{font-size:13.5px;color:var(--mu);margin-top:2px}
 .s-hello{font-size:14px;color:var(--mu2);font-weight:500}
 .s-title{font-family:var(--body);font-weight:700;font-size:26px;line-height:1.15;letter-spacing:-.02em;color:var(--tx);margin-top:2px}
 .s-weeks{display:flex;gap:6px;overflow-x:auto;margin-top:14px;padding-bottom:2px;scrollbar-width:none}
@@ -796,8 +801,7 @@ function renderStudent(){
     ${tipHTML()}
     <header class="s-top">${logo(S.c,'sm')}</header>
     <section>
-      ${S.d.a?`<div class="s-hello">Olá, ${esc(first(S.d.a))} 👋</div>`:''}
-      <h1 class="s-title">${esc(p.nome)}</h1>
+      ${S.d.a?`<div class="s-who"><div class="s-av">${esc(ini(S.d.a))}</div><div class="s-who-t"><div class="s-name">${esc(S.d.a)}</div><div class="s-prog-n">${esc(p.nome)}</div></div></div>`:`<h1 class="s-title">${esc(p.nome)}</h1>`}
       ${p.sem>1?`<div class="s-weeks">${Array.from({length:p.sem},(_,i)=>`<button class="s-wk ${i===w?'on':''} ${i===S.cur?'cur':''}" data-act="s-wk" data-i="${i}">S${i+1}</button>`).join('')}</div>
       <div class="s-wmeta">Semana ${w+1} de ${p.sem}${w===S.cur?' · semana atual':''}</div>`:''}
     </section>
