@@ -298,6 +298,27 @@ body.mode-s{background:var(--bg)}
 .an-cues li{font-size:13.5px;color:var(--mu2);padding-left:16px;position:relative;line-height:1.45}
 .an-cues li::before{content:'';position:absolute;left:2px;top:7px;width:6px;height:6px;border-radius:50%;background:var(--ac)}
 button.s-vid{font-family:inherit;background:var(--card)}
+.s-back{font-size:13px;font-weight:600;color:var(--mu2);padding:6px 0;margin-bottom:8px;display:inline-flex}
+.h-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:16px}
+.h-tabs::-webkit-scrollbar{display:none}
+.h-card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--sh1);margin-top:12px;overflow:hidden}
+.h-head{padding:16px 16px 12px}
+.h-head h2{font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--tx)}
+.h-cols{display:flex;justify-content:space-between;padding:8px 16px;font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mu);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fbfbfc}
+.h-list{padding:4px 0}
+.h-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid #f0f2f4}
+.h-list>.h-row:last-child,.h-grp:last-child .h-row:last-child{border-bottom:none}
+.h-n{flex-shrink:0;min-width:24px;font-size:12px;font-weight:700;color:var(--mu);font-variant-numeric:tabular-nums}
+.h-ex{flex:1;min-width:0;font-size:15px;font-weight:600;color:var(--tx);line-height:1.3}
+.h-rx{flex-shrink:0;font-size:14px;font-weight:700;color:var(--tx);font-variant-numeric:tabular-nums;white-space:nowrap}
+.h-rx i{font-style:normal;color:var(--ac);margin-right:6px}
+.h-row.ok .h-ex{color:var(--mu)}
+.h-grp{position:relative;margin:4px 12px;border-left:3px solid var(--ac);background:#f8fbfa;border-radius:0 10px 10px 0}
+.h-grp .h-row{padding:9px 12px 9px 10px;border-bottom:1px solid #edf3f1}
+.h-grp .h-row:last-child{border-bottom:none}
+.h-gl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ac);padding:8px 10px 0}
+.h-go{display:block;width:calc(100% - 32px);margin:12px 16px 16px;height:52px;border-radius:12px;background:var(--ac);color:#fff;font-size:16px;font-weight:700}
+.h-go:active{filter:brightness(.92)}
 /* ── PRINT ── */
 #print{display:none}
 @media print{
@@ -787,6 +808,7 @@ function bootStudent(raw){
   S.cur=curWeek(p);S.w=S.cur;
   const n=p.treinos.length, nx=nextIdx();
   S.t=nx!=null?nx:Math.min(st.t||0,Math.max(0,n-1));
+  S.view='home';
   document.title=`${p.nome} — ${S.c.l1} ${S.c.l2}`;
   renderStudent();
 }
@@ -811,6 +833,7 @@ function tipHTML(){
 function progressOf(t,w){let tot=0,done=0;t.blocos.forEach(b=>b.ex.forEach(e=>{const s=parsePresc(prescAt(e,w))||[];s.forEach((_,si)=>{tot++;if(S.log[`${w}|${e.id}|${si}`]?.d)done++})}));return {tot,done}}
 const isDone=(t,w)=>{const p=progressOf(t,w);return p.tot>0&&p.done===p.tot};
 function renderStudent(){
+  if(S.view==='home')return renderHome();
   const p=S.p,w=S.w,t=p.treinos[S.t];
   if(!t)return errView('Treino vazio','Peça um novo link ao seu treinador.');
   const pr=progressOf(t,w),pct=pr.tot?Math.round(pr.done/pr.tot*100):0,nx=nextIdx();
@@ -831,7 +854,7 @@ function renderStudent(){
       <div class="s-tabs">${p.treinos.map((x,i)=>`<button class="s-tab ${i===S.t?'on':''} ${i===nx?'next':''}" data-act="s-tab" data-i="${i}">${esc(x.l)}${isDone(x,w)?'<span class="ok">✓</span>':''}</button>`).join('')}</div>
       <div class="s-prog"><div class="s-bar"><i id="sBar" style="width:${pct}%"></i></div><span id="sCnt">${pr.done}/${pr.tot} séries</span></div>
     </nav>
-    <div class="s-thead">${kick}<h2>Treino ${esc(t.l)}</h2><div class="s-sub">${t.ti?esc(t.ti)+' · ':''}${nb} bloco${nb===1?'':'s'} · ${pr.tot} séries</div></div>
+    <div class="s-thead"><button class="s-back" data-act="s-home">← Resumo dos treinos</button>${kick}<h2>Treino ${esc(t.l)}</h2><div class="s-sub">${t.ti?esc(t.ti)+' · ':''}${nb} bloco${nb===1?'':'s'} · ${pr.tot} séries</div></div>
     <div class="s-blks">${t.blocos.map((b,i)=>{const h=sBlk(b,i,w,firstGrp);if(b.ex.length>1)firstGrp=false;return h}).join('')}</div>
     <div class="s-done ${tdone?'on':''}" id="sDone"><b>Treino ${esc(t.l)} concluído 💪</b>${p.treinos.length>1?`<span>Próximo: treino ${esc(nxt.l)}</span>`:''}</div>
     ${dicas.length?`<div class="s-notes"><h4>Orientações</h4><ul>${dicas.map(x=>`<li class="${/guerra|!!!/i.test(x)?'hl':''}">${esc(x)}</li>`).join('')}</ul></div>`:''}
@@ -839,6 +862,36 @@ function renderStudent(){
       <button class="lnk" data-act="s-clear">↺ Desmarcar as séries deste treino (as cargas continuam)</button>
       <div class="s-note">Suas cargas ficam salvas neste celular.</div></footer>
   </div>`;
+}
+function renderHome(){
+  const p=S.p,w=S.w,t=p.treinos[S.t];
+  if(!t)return errView('Treino vazio','Peça um novo link ao seu treinador.');
+  const pr=progressOf(t,w),nx=nextIdx(),tdone=pr.tot&&pr.done===pr.tot;
+  const isNext=S.t===nx||(nx==null&&S.t===0&&pr.done===0);
+  const kick=tdone?'<div class="s-kicker done">✓ Concluído</div>':(isNext?'<div class="s-kicker">Próximo treino</div>':(pr.done?'<div class="s-kicker">Em andamento</div>':''));
+  const dicas=(p.dicas||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  const L='ABCDEFGH';let nEx=0;
+  const row=(e,lab)=>{nEx++;const sets=parsePresc(prescAt(e,w))||[];const ok=sets.length&&sets.every((_,si)=>S.log[`${w}|${e.id}|${si}`]?.d);
+    return `<div class="h-row ${ok?'ok':''}"><span class="h-n">${lab}</span><span class="h-ex">${esc(e.n)}</span><span class="h-rx">${ok?'<i>✓</i>':''}${sets.length?esc(summarize(sets)):'—'}</span></div>`};
+  const list=t.blocos.map((b,i)=>b.ex.length>1
+    ?`<div class="h-grp"><div class="h-gl">${esc(TIPOS[b.ty]||'Super-série')}</div>${b.ex.map((e,j)=>row(e,`${i+1}${L[j]}`)).join('')}</div>`
+    :row(b.ex[0],i+1)).join('');
+  const btn=tdone?'Ver treino':(pr.done?'Continuar treino':'Começar treino');
+  app.innerHTML=`<div class="s-app">
+    ${tipHTML()}
+    <header class="s-top">${logo(S.c,'sm')}</header>
+    ${S.d.a?`<div class="s-who"><div class="s-av">${esc(ini(S.d.a))}</div><div class="s-who-t"><div class="s-name">${esc(S.d.a)}</div><div class="s-prog-n">${esc(p.nome)}</div></div></div>`:`<h1 class="s-title">${esc(p.nome)}</h1>`}
+    <div class="h-tabs">${p.treinos.map((x,i)=>`<button class="s-tab ${i===S.t?'on':''} ${i===nx?'next':''}" data-act="h-tab" data-i="${i}">${esc(x.l)}${isDone(x,w)?'<span class="ok">✓</span>':''}</button>`).join('')}</div>
+    <section class="h-card">
+      <div class="h-head">${kick}<h2>Treino ${esc(t.l)}</h2><div class="s-sub">${t.ti?esc(t.ti)+' · ':''}${nEx||''}${''}</div></div>
+      <div class="h-cols"><span>Exercício</span><span>Séries × reps</span></div>
+      <div class="h-list">${list}</div>
+      <button class="h-go" data-act="s-start">${btn} →</button>
+    </section>
+    ${dicas.length?`<div class="s-notes"><h4>Orientações</h4><ul>${dicas.map(x=>`<li class="${/guerra|!!!/i.test(x)?'hl':''}">${esc(x)}</li>`).join('')}</ul></div>`:''}
+    <footer class="s-foot">${logo(S.c,'sm')}${S.c.cref?`<div class="cref">${esc(S.c.cref)}</div>`:''}<div class="s-note">Suas cargas ficam salvas neste celular.</div></footer>
+  </div>`;
+  const sub=app.querySelector('.h-head .s-sub');if(sub)sub.textContent=`${t.ti?t.ti+' · ':''}${nEx} exercícios · ${pr.tot} séries`;
 }
 function rxTxt(sets){return sets.length?summarize(sets)+(/\d$/.test(sets[sets.length-1].r)?' reps':''):'A definir'}
 function exHead(e,label,w,withRx){
@@ -907,6 +960,9 @@ function onTreinoDone(){
 }
 function sAct(act,el){
   switch(act){
+    case 'h-tab': S.t=+el.dataset.i;localStorage.setItem('bp_st_'+S.p.id,JSON.stringify({t:S.t}));renderStudent();return;
+    case 's-start': S.view='sess';renderStudent();{const h=document.querySelector('.s-thead');window.scrollTo(0,h?h.getBoundingClientRect().top+window.scrollY-110:0)}return;
+    case 's-home': S.view='home';renderStudent();window.scrollTo(0,0);return;
     case 's-tab': S.t=+el.dataset.i;localStorage.setItem('bp_st_'+S.p.id,JSON.stringify({t:S.t}));renderStudent();scrollToTabs();return;
     case 's-wk': S.w=+el.dataset.i;renderStudent();return;
     case 's-chk':{const k=el.dataset.key,L=S.log[k]||{};const was=isDone(S.p.treinos[S.t],S.w);L.d=!L.d;
@@ -1396,7 +1452,7 @@ function openAnim(key){const a=AN.LIB[key];if(!a)return;
 }
 
 /* ═════════ AVISO DE ATUALIZAÇÃO ═════════ */
-const APP_V='2026-11-25.1';
+const APP_V='2026-11-27.1';
 let updShown=false;
 async function checkUpdate(){
   if(updShown||location.protocol==='file:')return;
